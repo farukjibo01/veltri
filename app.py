@@ -4,9 +4,19 @@ from flask_cors import CORS
 import datetime
 import threading
 import time
+import cloudinary
+import cloudinary.uploader
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+# === CLOUDINARY CONFIG (YOUR CREDENTIALS) ===
+cloudinary.config(
+    cloud_name="YOUR_CLOUD_NAME",  # <-- REPLACE WITH YOURS
+    api_key="YOUR_API_KEY",        # <-- REPLACE WITH YOURS
+    api_secret="YOUR_API_SECRET"   # <-- REPLACE WITH YOURS
+)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///veltri.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -26,6 +36,7 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     snap = db.Column(db.Boolean, default=False)
+    is_image = db.Column(db.Boolean, default=False)  # NEW
 
 class Story(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,6 +44,7 @@ class Story(db.Model):
     content = db.Column(db.Text, nullable=False)
     type = db.Column(db.String(20), default='text')
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    is_image = db.Column(db.Boolean, default=False)  # NEW
 
 with app.app_context():
     db.create_all()
@@ -96,11 +108,12 @@ def send_message():
     username = data.get('username')
     content = data.get('content')
     snap = data.get('snap', False)
+    is_image = data.get('is_image', False)
     
-    if not username or not content:
-        return jsonify({'error': 'Missing data'}), 400
+    if not username:
+        return jsonify({'error': 'Missing username'}), 400
     
-    new_message = Message(username=username, content=content, snap=snap)
+    new_message = Message(username=username, content=content, snap=snap, is_image=is_image)
     db.session.add(new_message)
     db.session.commit()
     
@@ -108,6 +121,33 @@ def send_message():
         threading.Thread(target=delete_snap_after_delay, args=(new_message.id,)).start()
     
     return jsonify({'message': 'Message sent!', 'id': new_message.id}), 201
+
+@app.route('/upload-image', methods=['POST'])
+def upload_image():
+    data = request.json
+    username = data.get('username')
+    image_data = data.get('image')
+    snap = data.get('snap', False)
+    
+    if not username or not image_data:
+        return jsonify({'error': 'Missing data'}), 400
+    
+    # Upload to Cloudinary
+    try:
+        upload_result = cloudinary.uploader.upload(image_data)
+        image_url = upload_result['secure_url']
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    # Save as a message
+    new_message = Message(username=username, content=image_url, snap=snap, is_image=True)
+    db.session.add(new_message)
+    db.session.commit()
+    
+    if snap:
+        threading.Thread(target=delete_snap_after_delay, args=(new_message.id,)).start()
+    
+    return jsonify({'message': 'Image uploaded!', 'url': image_url}), 201
 
 @app.route('/get-messages', methods=['GET'])
 def get_messages():
@@ -118,22 +158,22 @@ def get_messages():
             'username': m.username,
             'content': m.content,
             'timestamp': m.timestamp.strftime('%H:%M'),
-            'snap': m.snap
+            'snap': m.snap,
+            'is_image': m.is_image
         })
     return jsonify(result)
-
-# === STORY ROUTES ===
 
 @app.route('/post-story', methods=['POST'])
 def post_story():
     data = request.json
     username = data.get('username')
     content = data.get('content')
+    is_image = data.get('is_image', False)
     
     if not username or not content:
         return jsonify({'error': 'Missing data'}), 400
     
-    new_story = Story(username=username, content=content)
+    new_story = Story(username=username, content=content, is_image=is_image)
     db.session.add(new_story)
     db.session.commit()
     
@@ -150,7 +190,8 @@ def get_stories():
             'username': s.username,
             'content': s.content,
             'type': s.type,
-            'time': s.created_at.strftime('%H:%M')
+            'time': s.created_at.strftime('%H:%M'),
+            'is_image': s.is_image
         })
     return jsonify(result)
 
