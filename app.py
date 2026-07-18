@@ -30,7 +30,7 @@ with app.app_context():
 # Home page - NOW SERVES THE CHAT!
 @app.route('/')
 def home():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('.', 'login.html')
 
 # API routes
 @app.route('/api')
