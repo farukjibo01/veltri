@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import datetime
@@ -29,11 +29,24 @@ class Message(db.Model):
 with app.app_context():
     db.create_all()
 
-# Routes
+# === ROUTES ===
+
+# Home - JSON response
 @app.route('/')
 def home():
     return jsonify({'message': 'Welcome to Veltri API! 🚀'})
 
+# Serve the chat interface
+@app.route('/chat')
+def chat():
+    return send_from_directory('.', 'index.html')
+
+# Serve the launch page
+@app.route('/launch')
+def launch():
+    return send_from_directory('.', 'launch.html')
+
+# Signup
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.json
@@ -50,6 +63,7 @@ def signup():
     
     return jsonify({'message': f'Welcome to Veltri, {username}!'}), 201
 
+# Login
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -62,6 +76,7 @@ def login():
     
     return jsonify({'message': f'Welcome back, {username}!'}), 200
 
+# Send message
 @app.route('/send-message', methods=['POST'])
 def send_message():
     data = request.json
@@ -77,6 +92,7 @@ def send_message():
     
     return jsonify({'message': 'Message sent!', 'id': new_message.id}), 201
 
+# Get all messages
 @app.route('/get-messages', methods=['GET'])
 def get_messages():
     messages = Message.query.order_by(Message.timestamp.asc()).all()
