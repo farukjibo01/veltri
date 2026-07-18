@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Veltri Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * {
             margin: 0;
@@ -11,18 +12,24 @@
         }
         body {
             background: #0b0b0e;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
         .chat-box {
-            width: 420px;
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
             background: #1a1a1e;
-            border-radius: 20px;
             padding: 20px;
-            border: 1px solid #2c2c30;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
         }
         h1 {
             color: #2b6ef0;
@@ -99,7 +106,7 @@
         }
         #messages {
             background: #121214;
-            height: 280px;
+            flex: 1;
             border-radius: 12px;
             padding: 15px;
             overflow-y: auto;
@@ -225,7 +232,6 @@
             window.location.href = '/login-page';
         }
 
-        // === CAMERA / IMAGE UPLOAD ===
         function openCamera() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -257,7 +263,6 @@
             input.click();
         }
 
-        // === POST STORY ===
         async function postStory() {
             const storyText = prompt("What's on your mind? (24h story)");
             if (!storyText) return;
@@ -274,7 +279,6 @@
             }
         }
 
-        // === LOAD STORIES ===
         async function loadStories() {
             try {
                 const response = await fetch('/get-stories');
@@ -310,7 +314,6 @@
             }
         }
 
-        // === SEND MESSAGE ===
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const messagesDiv = document.getElementById('messages');
@@ -342,7 +345,6 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // === LOAD MESSAGES ===
         async function loadMessages() {
             try {
                 const response = await fetch('/get-messages');
