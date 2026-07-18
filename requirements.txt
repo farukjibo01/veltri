@@ -1,8 +1,0 @@
-flask
-flask-sqlalchemy
-flask-cors
-flask-socketio
-cloudinary
-eventlet
-python-engineio
-python-socketio
