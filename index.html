@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Veltri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        body {
+            background: #0b0b0e;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background: #1a1a1e;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #121214;
+            border-bottom: 1px solid #2c2c30;
+            min-height: 56px;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            color: #25d366;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #e4e4e7;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            transition: background 0.2s;
+        }
+        .icon-btn:hover {
+            background: #2a2a2e;
+        }
+        .icon-btn.active {
+            color: #25d366;
+        }
+        /* PAGES */
+        .page {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 10px 12px;
+            background: #1a1a1e;
+        }
+        .page.active {
+            display: flex;
+        }
+        /* INBOX */
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: none;
+            width: 100%;
+        }
+        .chat-item:hover {
+            background: #25252a;
+        }
+        .chat-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #2b6ef0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-name {
+            color: #e4e4e7;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .chat-preview {
+            color: #6b6b70;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-time {
+            color: #6b6b70;
+            font-size: 11px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        .chat-online {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #25d366;
+            margin-left: 6px;
+        }
+        .chat-online.offline {
+            background: #6b6b70;
+        }
+        /* STORIES BAR */
+        .stories-scroll {
+            display: flex;
+            overflow-x: auto;
+            padding: 8px 0 12px 0;
+            gap: 12px;
+            flex-shrink: 0;
+            scrollbar-width: none;
+        }
+        .stories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            min-width: 60px;
+        }
+        .story-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            border: 3px solid #25d366;
+            background: #2b6ef0;
+            overflow: hidden;
+        }
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .story-avatar.my-story {
+            border-color: #2b6ef0;
+        }
+        .story-avatar.viewed {
+            border-color: #6b6b70;
+        }
+        .story-name {
+            color: #6b6b70;
+            font-size: 10px;
+            margin-top: 4px;
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        /* CHAT PAGE */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #121214;
+            border-bottom: 1px solid #2c2c30;
+            flex-shrink: 0;
+            min-height: 56px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: #25d366;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+        .chat-header .chat-name {
+            font-size: 16px;
+            margin-left: 8px;
+            color: #e4e4e7;
+            font-weight: 600;
+        }
+        .chat-header .chat-status {
+            font-size: 11px;
+            color: #6b6b70;
+            margin-left: 8px;
+        }
+        .chat-header .chat-status.online {
+            color: #25d366;
+        }
+        #messages-container {
+            flex: 1;
+            padding: 12px 8px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #121214;
+        }
+        .message-bubble {
+            padding: 8px 12px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .message-bubble.sent {
+            background: #25d366;
+            align-self: flex-end;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message-bubble.received {
+            background: #2a2a2e;
+            align-self: flex-start;
+            color: #e4e4e7;
+            border-bottom-left-radius: 4px;
+        }
+        .message-bubble img {
+            max-width: 200px;
+            border-radius: 8px;
+            display: block;
+        }
+        .message-bubble video {
+            max-width: 200px;
+            border-radius: 8px;
+        }
+        .message-bubble audio {
+            max-width: 200px;
+        }
+        .message-time {
+            font-size: 10px;
+            color: #6b6b70;
+            margin-top: 4px;
+            align-self: flex-end;
+        }
+        /* INPUT AREA */
+        .input-area {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #121214;
+            border-top: 1px solid #2c2c30;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 24px;
+            border: none;
+            background: #2a2a2e;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+        #messageInput::placeholder {
+            color: #6b6b70;
+        }
+        .input-btn {
+            background: none;
+            border: none;
+            color: #e4e4e7;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .input-btn:hover {
+            background: #2a2a2e;
+        }
+        .send-btn {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .send-btn:hover {
+            background: #1aaa55;
+        }
+        .voice-btn {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .voice-btn.recording {
+            background: #ff4444;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        /* FRIEND REQUESTS */
+        .friend-request-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            border: 1px solid #2c2c30;
+        }
+        .friend-request-item .name {
+            color: #e4e4e7;
+            font-weight: 600;
+        }
+        .friend-request-item .actions button {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+        .accept-btn {
+            background: #25d366;
+            color: white;
+        }
+        .reject-btn {
+            background: #ff4444;
+            color: white;
+        }
+        /* PROFILE */
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 12px;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #2b6ef0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            overflow: hidden;
+            border: 3px solid #25d366;
+        }
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-name {
+            color: #e4e4e7;
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        .profile-username {
+            color: #6b6b70;
+            font-size: 14px;
+        }
+        .profile-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #2c2c30;
+            background: #1a1a1e;
+            color: white;
+            margin-bottom: 10px;
+            outline: none;
+            font-size: 14px;
+        }
+        .profile-input:focus {
+            border-color: #25d366;
+        }
+        .save-btn {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .save-btn:hover {
+            background: #1aaa55;
+        }
+        /* SETTINGS */
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 12px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            border: 1px solid #2c2c30;
+            cursor: pointer;
+        }
+        .settings-item:hover {
+            background: #25252a;
+        }
+        .settings-item .label {
+            color: #e4e4e7;
+            font-size: 15px;
+        }
+        .settings-item .value {
+            color: #6b6b70;
+            font-size: 14px;
+        }
+        .settings-item .arrow {
+            color: #6b6b70;
+            font-size: 18px;
+        }
+        /* STORY VIEWER */
+        #storyViewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        #storyViewer.active {
+            display: flex;
+        }
+        .story-viewer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .story-viewer-content {
+            max-width: 90%;
+            max-height: 70vh;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .story-viewer-content img,
+        .story-viewer-content video {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 16px;
+        }
+        .story-viewer-text {
+            background: #1a1a1e;
+            padding: 30px 40px;
+            border-radius: 16px;
+            color: white;
+            font-size: 22px;
+            text-align: center;
+        }
+        .story-viewer-views {
+            color: #6b6b70;
+            margin-top: 16px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .story-viewer-views .viewer-tag {
+            display: inline-block;
+            background: #2a2a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin: 4px;
+            color: #e4e4e7;
+            font-size: 12px;
+        }
+        /* GROUPS */
+        .group-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+        }
+        .group-item:hover {
+            background: #25252a;
+        }
+        .group-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #25d366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        /* HIDDEN */
+        .hidden {
+            display: none !important;
+        }
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121214;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a2e;
+            border-radius: 4px;
+        }
+        /* NOTIFICATION BADGE */
+        .badge {
+            background: #25d366;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+        /* TAB BAR */
+        .tab-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 0 10px 0;
+            background: #121214;
+            border-top: 1px solid #2c2c30;
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #6b6b70;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 16px;
+            border-radius: 30px;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .tab-btn .tab-label {
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .tab-btn.active {
+            color: #25d366;
+        }
+        .tab-btn:hover {
+            color: #e4e4e7;
+        }
+        .tab-btn .badge {
+            font-size: 10px;
+            padding: 1px 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+    <!-- ========== HEADER ========== -->
+    <div class="header">
+        <h1>💬 Veltri</h1>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="showPage('inbox')" id="inboxTabBtn">🏠</button>
+            <button class="icon-btn" onclick="showPage('groups')" id="groupsTabBtn">👥</button>
+            <button class="icon-btn" onclick="showPage('settings')" id="settingsTabBtn">⚙️</button>
+        </div>
+    </div>
+
+    <!-- ========== INBOX PAGE ========== -->
+    <div class="page active" id="inbox-page">
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+            <input id="searchInput" placeholder="Search users..." style="flex:1; padding:10px 14px; border-radius:24px; border:none; background:#2a2a2e; color:white; outline:none; font-size:14px;">
+            <button onclick="searchUsers()" style="background:#25d366; color:white; border:none; padding:10px 16px; border-radius:24px; cursor:pointer; font-weight:600;">🔍</button>
+        </div>
+        <div id="searchResults" style="margin-bottom:8px;"></div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0 4px 0;">
+            <h3 style="color:#e4e4e7; font-size:14px; font-weight:600;">📨 Friend Requests</h3>
+            <span id="requestCount" style="color:#25d366; font-size:12px;"></span>
+        </div>
+        <div id="friendRequestsContainer"></div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0 4px 0;">
+            <h3 style="color:#e4e4e7; font-size:14px; font-weight:600;">💬 Chats</h3>
+        </div>
+        <div id="inboxContainer"></div>
+    </div>
+
+    <!-- ========== CHAT PAGE ========== -->
+    <div class="page" id="chat-page">
+        <div class="chat-header">
+            <button class="back-btn" onclick="closeChat()">←</button>
+            <div class="chat-avatar" id="chatAvatar" style="width:40px; height:40px; font-size:16px; margin-right:8px;">U</div>
+            <div style="flex:1;">
+                <div class="chat-name" id="chatPartnerName">User</div>
+                <div class="chat-status" id="chatPartnerStatus">offline</div>
+            </div>
+            <button class="icon-btn" onclick="startCall('voice')" style="font-size:22px;">📞</button>
+            <button class="icon-btn" onclick="startCall('video')" style="font-size:22px;">📹</button>
+        </div>
+        <div id="messages-container"></div>
+        <div class="input-area">
+            <button class="input-btn" onclick="openCamera('image')">📷</button>
+            <button class="input-btn" onclick="openCamera('video')">🎥</button>
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">🎤</button>
+            <input id="messageInput" placeholder="Type a message...">
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- ========== GROUPS PAGE ========== -->
+    <div class="page" id="groups-page">
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <input id="groupNameInput" placeholder="Group name..." style="flex:1; padding:10px 14px; border-radius:24px; border:none; background:#2a2a2e; color:white; outline:none; font-size:14px;">
+            <button onclick="createGroup()" style="background:#25d366; color:white; border:none; padding:10px 16px; border-radius:24px; cursor:pointer; font-weight:600;">+ New</button>
+        </div>
+        <h3 style="color:#e4e4e7; font-size:14px; font-weight:600; margin:8px 0 4px 0;">👥 Your Groups</h3>
+        <div id="groupsContainer"></div>
+    </div>
+
+    <!-- ========== GROUP CHAT PAGE ========== -->
+    <div class="page" id="group-chat-page">
+        <div class="chat-header">
+            <button class="back-btn" onclick="closeGroupChat()">←</button>
+            <div class="group-avatar" style="width:40px; height:40px; font-size:16px; margin-right:8px;">G</div>
+            <div style="flex:1;">
+                <div class="chat-name" id="groupChatName">Group</div>
+                <div class="chat-status" id="groupMemberCount">0 members</div>
+            </div>
+            <button class="icon-btn" onclick="addGroupMember()" style="font-size:20px;">➕</button>
+        </div>
+        <div id="groupMessagesContainer" style="flex:1; padding:12px 8px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; background:#121214;"></div>
+        <div class="input-area">
+            <button class="input-btn" onclick="openGroupCamera('image')">📷</button>
+            <button class="input-btn" onclick="openGroupCamera('video')">🎥</button>
+            <input id="groupMessageInput" placeholder="Type a group message...">
+            <button class="send-btn" onclick="sendGroupMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- ========== SETTINGS PAGE ========== -->
+    <div class="page" id="settings-page">
+        <div class="profile-section">
+            <div class="profile-pic" id="profilePic" onclick="uploadProfilePic()">
+                <span id="profilePicText">👤</span>
+            </div>
+            <div class="profile-name" id="profileName">User</div>
+            <div class="profile-username" id="profileUsername">@username</div>
+        </div>
+        
+        <div style="margin-top:10px;">
+            <div style="color:#6b6b70; font-size:12px; font-weight:600; margin-bottom:6px;">✏️ Edit Profile</div>
+            <input class="profile-input" id="editName" placeholder="Display Name...">
+            <input class="profile-input" id="editBio" placeholder="Bio...">
+            <input class="profile-input" id="editPassword" placeholder="New Password..." type="password">
+            <button class="save-btn" onclick="updateProfile()" style="width:100%;">Save Profile</button>
+        </div>
+        
+        <div style="margin-top:16px;">
+            <div style="color:#6b6b70; font-size:12px; font-weight:600; margin-bottom:6px;">⚙️ Settings</div>
+            <div class="settings-item" onclick="logout()">
+                <span class="label" style="color:#ff4444;">🚪 Logout</span>
+                <span class="arrow">→</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== STORY VIEWER ========== -->
+    <div id="storyViewer">
+        <button class="story-viewer-close" onclick="closeStoryViewer()">✕ Close</button>
+        <div id="storyViewerContent" class="story-viewer-content"></div>
+        <div id="storyViewerViews" class="story-viewer-views"></div>
+    </div>
+
+    <!-- ========== TAB BAR ========== -->
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="showPage('inbox')" id="tabInbox">
+            <span>💬</span>
+            <span class="tab-label">Chats</span>
+        </button>
+        <button class="tab-btn" onclick="showPage('groups')" id="tabGroups">
+            <span>👥</span>
+            <span class="tab-label">Groups</span>
+        </button>
+        <button class="tab-btn" onclick="showPage('settings')" id="tabSettings">
+            <span>⚙️</span>
+            <span class="tab-label">Settings</span>
+        </button>
+    </div>
+
+</div>
+
+<script>
+// ============================================================
+// GLOBALS
+// ============================================================
+const username = localStorage.getItem('username');
+let currentChatPartner = '';
+let currentGroupId = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let messageInterval = null;
+let groupMessageInterval = null;
+let storyInterval = null;
+
+if (!username) {
+    window.location.href = '/login-page';
+}
+
+// ============================================================
+// PAGE NAVIGATION
+// ============================================================
+function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(page + '-page');
+    if (target) target.classList.add('active');
+    
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const tabMap = { inbox: 'tabInbox', groups: 'tabGroups', settings: 'tabSettings' };
+    if (tabMap[page]) document.getElementById(tabMap[page]).classList.add('active');
+    
+    if (page === 'inbox') {
+        loadInbox();
+        loadFriendRequests();
+        loadStories();
+        if (messageInterval) clearInterval(messageInterval);
+        if (groupMessageInterval) clearInterval(groupMessageInterval);
+        if (storyInterval) clearInterval(storyInterval);
+        storyInterval = setInterval(loadStories, 10000);
+    }
+    if (page === 'groups') {
+        loadGroups();
+    }
+}
+
+// ============================================================
+// INBOX
+// ============================================================
+async function loadInbox() {
+    try {
+        const res = await fetch('/get-friends/' + username);
+        const friends = await res.json();
+        const container = document.getElementById('inboxContainer');
+        container.innerHTML = '';
+        if (friends.length === 0) {
+            container.innerHTML = '<div style="color:#6b6b70; text-align:center; padding:30px 0;">No chats yet. Add friends!</div>';
+        }
+        friends.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.innerHTML = `
+                <div class="chat-avatar">${f.name ? f.name[0].toUpperCase() : f.username[0].toUpperCase()}</div>
+                <div class="chat-info">
+                    <div class="chat-name">${f.name || f.username} ${f.online ? '<span class="chat-online"></span>' : ''}</div>
+                    <div class="chat-preview">${f.online ? '🟢 Online' : 'Offline'}</div>
+                </div>
+            `;
+            div.onclick = () => openChat(f.username);
+            container.appendChild(div);
+        });
+    } catch(e) { console.error('loadInbox error:', e); }
+}
+
+// ============================================================
+// SEARCH USERS
+// ============================================================
+async function searchUsers() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return;
+    try {
+        const res = await fetch('/search-users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+        });
+        const users = await res.json();
+        const container = document.getElementById('searchResults');
+        container.innerHTML = '';
+        users.forEach(u => {
+            if (u.username === username) return;
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.innerHTML = `
+                <div class="chat-avatar">${u.name ? u.name[0].toUpperCase() : u.username[0].toUpperCase()}</div>
+                <div class="chat-info">
+                    <div class="chat-name">${u.name || u.username}</div>
+                    <div class="chat-preview">@${u.username}</div>
+                </div>
+                <button onclick="sendFriendRequest('${u.username}')" style="background:#25d366; color:white; border:none; padding:6px 14px; border-radius:20px; cursor:pointer; font-weight:600; font-size:12px;">Add</button>
+            `;
+            container.appendChild(div);
+        });
+        if (users.length === 0) {
+            container.innerHTML = '<div style="color:#6b6b70; padding:10px 0;">No users found.</div>';
+        }
+    } catch(e) { console.error('searchUsers error:', e); }
+}
+
+// ============================================================
+// FRIEND REQUESTS
+// ============================================================
+async function sendFriendRequest(receiver) {
+    try {
+        const res = await fetch('/send-friend-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender: username, receiver })
+        });
+        const data = await res.json();
+        alert(data.message || 'Friend request sent!');
+        searchUsers();
+    } catch(e) { alert('Error sending request'); }
+}
+
+async function loadFriendRequests() {
+    try {
+        const res = await fetch('/get-friend-requests/' + username);
+        const requests = await res.json();
+        const container = document.getElementById('friendRequestsContainer');
+        container.innerHTML = '';
+        document.getElementById('requestCount').textContent = requests.length > 0 ? `(${requests.length})` : '';
+        if (requests.length === 0) {
+            container.innerHTML = '<div style="color:#6b6b70; font-size:13px; padding:4px 0;">No pending requests</div>';
+        }
+        requests.forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'friend-request-item';
+            div.innerHTML = `
+                <span class="name">${r.sender}</span>
+                <div class="actions">
+                    <button class="accept-btn" onclick="acceptFriendRequest('${r.sender}')">Accept</button>
+                    <button class="reject-btn" onclick="rejectFriendRequest('${r.sender}')">Reject</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    } catch(e) { console.error('loadFriendRequests error:', e); }
+}
+
+async function acceptFriendRequest(sender) {
+    try {
+        await fetch('/accept-friend-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender, receiver: username })
+        });
+        loadFriendRequests();
+        loadInbox();
+    } catch(e) { alert('Error accepting request'); }
+}
+
+async function rejectFriendRequest(sender) {
+    try {
+        await fetch('/reject-friend-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender, receiver: username })
+        });
+        loadFriendRequests();
+    } catch(e) { alert('Error rejecting request'); }
+}
+
+// ============================================================
+// CHAT
+// ============================================================
+function openChat(partner) {
+    currentChatPartner = partner;
+    document.getElementById('chatPartnerName').textContent = partner;
+    document.getElementById('chatAvatar').textContent = partner[0].toUpperCase();
+    showPage('chat');
+    loadMessages();
+    if (messageInterval) clearInterval(messageInterval);
+    messageInterval = setInterval(loadMessages, 3000);
+    loadUserStatus(partner);
+}
+
+function closeChat() {
+    currentChatPartner = '';
+    if (messageInterval) clearInterval(messageInterval);
+    showPage('inbox');
+}
+
+async function loadUserStatus(partner) {
+    try {
+        const res = await fetch('/get-user/' + partner);
+        const user = await res.json();
+        const statusEl = document.getElementById('chatPartnerStatus');
+        if (user.online) {
+            statusEl.textContent = '🟢 Online';
+            statusEl.className = 'chat-status online';
+        } else {
+            statusEl.textContent = 'Last seen ' + (user.last_seen || 'recently');
+            statusEl.className = 'chat-status';
+        }
+    } catch(e) {}
+}
+
+async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text || !currentChatPartner) return;
+    
+    try {
+        await fetch('/send-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sender: username,
+                receiver: currentChatPartner,
+                content: text,
+                type: 'text'
+            })
+        });
+        input.value = '';
+        loadMessages();
+    } catch(e) { console.error('sendMessage error:', e); }
+}
+
+async function loadMessages() {
+    if (!currentChatPartner) return;
+    try {
+        const res = await fetch('/get-messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user1: username, user2: currentChatPartner })
+        });
+        const messages = await res.json();
+        const container = document.getElementById('messages-container');
+        container.innerHTML = '';
+        messages.forEach(m => {
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble ' + (m.sender === username ? 'sent' : 'received');
+            if (m.message_type === 'image') {
+                bubble.innerHTML = `<img src="${m.content}" alt="Image">`;
+            } else if (m.message_type === 'video') {
+                bubble.innerHTML = `<video src="${m.content}" controls></video>`;
+            } else if (m.message_type === 'voice') {
+                bubble.innerHTML = `<audio controls src="${m.content}"></audio>`;
+            } else {
+                bubble.textContent = m.content;
+            }
+            container.appendChild(bubble);
+        });
+        container.scrollTop = container.scrollHeight;
+    } catch(e) { console.error('loadMessages error:', e); }
+}
+
+// ============================================================
+// CAMERA (Image/Video)
+// ============================================================
+function openCamera(type) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = type === 'image' ? 'image/*' : 'video/*';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const data = ev.target.result;
+            try {
+                const res = await fetch('/upload-media', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ media: data, type: type })
+                });
+                const result = await res.json();
+                await fetch('/send-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender: username,
+                        receiver: currentChatPartner,
+                        content: result.url,
+                        type: type
+                    })
+                });
+                loadMessages();
+            } catch(e) { alert('Error uploading media'); }
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+
+// ============================================================
+// VOICE NOTES
+// ============================================================
+function toggleVoiceRecording() {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+}
+
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = e.target.result;
+                try {
+                    const res = await fetch('/upload-media', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ media: data, type: 'voice' })
+                    });
+                    const result = await res.json();
+                    await fetch('/send-message', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sender: username,
+                            receiver: currentChatPartner,
+                            content: result.url,
+                            type: 'voice'
+                        })
+                    });
+                    loadMessages();
+                } catch(e) { alert('Error uploading voice note'); }
+            };
+            reader.readAsDataURL(audioBlob);
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        document.getElementById('voiceBtn').classList.add('recording');
+        document.getElementById('voiceBtn').textContent = '⏹';
+    } catch(e) {
+        alert('Please allow microphone access.');
+    }
+}
+
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        document.getElementById('voiceBtn').classList.remove('recording');
+        document.getElementById('voiceBtn').textContent = '🎤';
+    }
+}
+
+// ============================================================
+// GROUPS
+// ============================================================
+async function createGroup() {
+    const name = document.getElementById('groupNameInput').value.trim();
+    if (!name) return alert('Enter a group name');
+    
+    const members = prompt('Enter members (comma-separated):');
+    if (!members) return;
+    const memberList = members.split(',').map(m => m.trim()).filter(m => m && m !== username);
+    
+    try {
+        await fetch('/create-group', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                creator: username,
+                members: memberList
+            })
+        });
+        document.getElementById('groupNameInput').value = '';
+        loadGroups();
+        alert('Group created!');
+    } catch(e) { alert('Error creating group'); }
+}
+
+async function loadGroups() {
+    try {
+        const res = await fetch('/get-groups/' + username);
+        const groups = await res.json();
+        const container = document.getElementById('groupsContainer');
+        container.innerHTML = '';
+        if (groups.length === 0) {
+            container.innerHTML = '<div style="color:#6b6b70; text-align:center; padding:30px 0;">No groups yet. Create one!</div>';
+        }
+        groups.forEach(g => {
+            const div = document.createElement('div');
+            div.className = 'group-item';
+            div.innerHTML = `
+                <div class="group-avatar">${g.name[0].toUpperCase()}</div>
+                <div class="chat-info">
+                    <div class="chat-name">${g.name}</div>
+                    <div class="chat-preview">${g.member_count} members</div>
+                </div>
+            `;
+            div.onclick = () => openGroupChat(g.id, g.name);
+            container.appendChild(div);
+        });
+    } catch(e) { console.error('loadGroups error:', e); }
+}
+
+function openGroupChat(groupId, name) {
+    currentGroupId = groupId;
+    document.getElementById('groupChatName').textContent = name;
+    showPage('group-chat');
+    loadGroupMessages();
+    if (groupMessageInterval) clearInterval(groupMessageInterval);
+    groupMessageInterval = setInterval(loadGroupMessages, 3000);
+}
+
+function closeGroupChat() {
+    currentGroupId = null;
+    if (groupMessageInterval) clearInterval(groupMessageInterval);
+    showPage('groups');
+}
+
+async function sendGroupMessage() {
+    const input = document.getElementById('groupMessageInput');
+    const text = input.value.trim();
+    if (!text || !currentGroupId) return;
+    
+    try {
+        await fetch('/send-group-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                group_id: currentGroupId,
+                sender: username,
+                content: text,
+                type: 'text'
+            })
+        });
+        input.value = '';
+        loadGroupMessages();
+    } catch(e) { console.error('sendGroupMessage error:', e); }
+}
+
+async function loadGroupMessages() {
+    if (!currentGroupId) return;
+    try {
+        const res = await fetch('/get-group-messages/' + currentGroupId);
+        const messages = await res.json();
+        const container = document.getElementById('groupMessagesContainer');
+        container.innerHTML = '';
+        messages.forEach(m => {
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble ' + (m.sender === username ? 'sent' : 'received');
+            bubble.textContent = m.sender + ': ' + m.content;
+            container.appendChild(bubble);
+        });
+        container.scrollTop = container.scrollHeight;
+    } catch(e) { console.error('loadGroupMessages error:', e); }
+}
+
+function openGroupCamera(type) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = type === 'image' ? 'image/*' : 'video/*';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const data = ev.target.result;
+            try {
+                const res = await fetch('/upload-media', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ media: data, type: type })
+                });
+                const result = await res.json();
+                await fetch('/send-group-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        group_id: currentGroupId,
+                        sender: username,
+                        content: result.url,
+                        type: type
+                    })
+                });
+                loadGroupMessages();
+            } catch(e) { alert('Error uploading media'); }
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+
+async function addGroupMember() {
+    const member = prompt('Enter username to add:');
+    if (!member || !currentGroupId) return;
+    try {
+        await fetch('/add-group-member', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ group_id: currentGroupId, username: member })
+        });
+        alert('Member added!');
+    } catch(e) { alert('Error adding member'); }
+}
+
+// ============================================================
+// STORIES
+// ============================================================
+async function loadStories() {
+    try {
+        const res = await fetch('/get-stories/' + username);
+        const stories = await res.json();
+        const inboxPage = document.getElementById('inbox-page');
+        let existing = document.getElementById('storiesSection');
+        if (existing) existing.remove();
+        
+        if (stories.length === 0) return;
+        
+        let html = `<div class="stories-scroll">`;
+        html += `
+            <div class="story-item" onclick="postStory()">
+                <div class="story-avatar my-story">+</div>
+                <span class="story-name">My Story</span>
+            </div>
+        `;
+        stories.forEach(s => {
+            if (s.username !== username) {
+                const viewed = s.views.includes(username) ? 'viewed' : '';
+                html += `
+                    <div class="story-item" onclick="viewStory('${s.id}', '${s.username}', '${s.content}', '${s.type}', '${s.views}')">
+                        <div class="story-avatar ${viewed}" style="background:#ff6b6b;">${s.username[0].toUpperCase()}</div>
+                        <span class="story-name">${s.username}</span>
+                    </div>
+                `;
+            }
+        });
+        html += `</div>`;
+        const section = document.createElement('div');
+        section.id = 'storiesSection';
+        section.innerHTML = html;
+        inboxPage.prepend(section);
+    } catch(e) { console.error('loadStories error:', e); }
+}
+
+async function postStory() {
+    const type = prompt('Type: text, image, or video?');
+    if (!type) return;
+    if (type === 'text') {
+        const content = prompt('What\'s on your mind?');
+        if (!content) return;
+        await fetch('/post-story', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, content, type: 'text' })
+        });
+        loadStories();
+    } else if (type === 'image' || type === 'video') {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = type === 'image' ? 'image/*' : 'video/*';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const data = ev.target.result;
+                const res = await fetch('/upload-media', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ media: data, type: type })
+                });
+                const result = await res.json();
+                await fetch('/post-story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, content: result.url, type: type })
+                });
+                loadStories();
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
+}
+
+async function viewStory(storyId, storyUsername, content, type, views) {
+    await fetch('/view-story', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ story_id: storyId, viewer: username })
+    });
+    
+    const viewer = document.getElementById('storyViewer');
+    viewer.classList.add('active');
+    
+    const contentDiv = document.getElementById('storyViewerContent');
+    if (type === 'image') {
+        contentDiv.innerHTML = `<img src="${content}" alt="Story">`;
+    } else if (type === 'video') {
+        contentDiv.innerHTML = `<video src="${content}" controls autoplay></video>`;
+    } else {
+        contentDiv.innerHTML = `<div class="story-viewer-text">${content}</div>`;
+    }
+    
+    let viewsList = [];
+    try { viewsList = JSON.parse(views); } catch(e) {}
+    const viewsDiv = document.getElementById('storyViewerViews');
+    viewsDiv.innerHTML = `<strong>👁️ Seen by:</strong><br>`;
+    if (viewsList.length > 0) {
+        viewsList.forEach(v => {
+            viewsDiv.innerHTML += `<span class="viewer-tag">${v}</span>`;
+        });
+    } else {
+        viewsDiv.innerHTML += `<span style="color:#6b6b70;">No views yet</span>`;
+    }
+}
+
+function closeStoryViewer() {
+    document.getElementById('storyViewer').classList.remove('active');
+    loadStories();
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+async function loadProfile() {
+    try {
+        const res = await fetch('/get-user/' + username);
+        const user = await res.json();
+        document.getElementById('profileName').textContent = user.name || user.username;
+        document.getElementById('profileUsername').textContent = '@' + user.username;
+        document.getElementById('editName').value = user.name || '';
+        document.getElementById('editBio').value = user.bio || '';
+        if (user.profile_pic) {
+            document.getElementById('profilePic').innerHTML = `<img src="${user.profile_pic}">`;
+        }
+    } catch(e) { console.error('loadProfile error:', e); }
+}
+
+async function updateProfile() {
+    const name = document.getElementById('editName').value;
+    const bio = document.getElementById('editBio').value;
+    const password = document.getElementById('editPassword').value;
+    try {
+        await fetch('/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, name, bio, password })
+        });
+        alert('Profile updated!');
+        loadProfile();
+    } catch(e) { alert('Error updating profile'); }
+}
+
+function uploadProfilePic() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const data = ev.target.result;
+            try {
+                const res = await fetch('/upload-media', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ media: data, type: 'image' })
+                });
+                const result = await res.json();
+                await fetch('/update-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, profile_pic: result.url })
+                });
+                loadProfile();
+            } catch(e) { alert('Error uploading profile picture'); }
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+
+// ============================================================
+// CALL (Simple placeholder)
+// ============================================================
+function startCall(type) {
+    alert(`📞 ${type} call feature coming soon! (WebRTC integration)`);
+}
+
+// ============================================================
+// LOGOUT
+// ============================================================
+async function logout() {
+    if (confirm('Logout?')) {
+        await fetch('/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+        });
+        localStorage.removeItem('username');
+        window.location.href = '/login-page';
+    }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadProfile();
+loadInbox();
+loadFriendRequests();
+loadStories();
+loadGroups();
+</script>
+</body>
+</html>
