@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Veltri Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #0b0b0e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-box {
+            width: 400px;
+            background: #1a1a1e;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #2c2c30;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        h1 {
+            color: #2b6ef0;
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        #messages {
+            background: #121214;
+            height: 300px;
+            border-radius: 12px;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            color: #e4e4e7;
+            border: 1px solid #2c2c30;
+            display: flex;
+            flex-direction: column;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 12px;
+            border-radius: 30px;
+            border: none;
+            background: #2a2a2e;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+        button {
+            background: #2b6ef0;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #1a5adf;
+        }
+        .message-bubble {
+            background: #2b6ef0;
+            padding: 8px 14px;
+            border-radius: 18px;
+            margin-bottom: 8px;
+            max-width: 80%;
+            align-self: flex-end;
+            color: white;
+        }
+        .message-bubble.received {
+            background: #2a2a2e;
+            align-self: flex-start;
+            color: #e4e4e7;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-box">
+        <h1>💬 Veltri</h1>
+        <div id="messages"></div>
+        <div class="input-area">
+            <input id="messageInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const messagesDiv = document.getElementById('messages');
+            const text = input.value.trim();
+            
+            if (text === '') return;
+
+            // Your message (blue bubble)
+            const myMsg = document.createElement('div');
+            myMsg.className = 'message-bubble';
+            myMsg.textContent = text;
+            messagesDiv.appendChild(myMsg);
+
+            // Clear input
+            input.value = '';
+
+            // Auto-reply after 1 second (THE BOT!)
+            setTimeout(() => {
+                const reply = document.createElement('div');
+                reply.className = 'message-bubble received';
+                const replies = ['Hey! 👋', 'Cool!', 'Tell me more', 'Veltri is awesome!', '😄', 'I like that!', 'Nice one!'];
+                reply.textContent = replies[Math.floor(Math.random() * replies.length)];
+                messagesDiv.appendChild(reply);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1000);
+
+            // Scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
