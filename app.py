@@ -6,47 +6,37 @@ import datetime
 app = Flask(__name__)
 CORS(app)
 
-# Database setup
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///veltri.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# User table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-# Message table
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-# Create tables
 with app.app_context():
     db.create_all()
 
 # === ROUTES ===
 
-# Home - JSON response
+# Home page - NOW SERVES THE CHAT!
 @app.route('/')
 def home():
-    return jsonify({'message': 'Welcome to Veltri API! 🚀'})
-
-# Serve the chat interface
-@app.route('/chat')
-def chat():
     return send_from_directory('.', 'index.html')
 
-# Serve the launch page
-@app.route('/launch')
-def launch():
-    return send_from_directory('.', 'launch.html')
+# API routes
+@app.route('/api')
+def api_home():
+    return jsonify({'message': 'Welcome to Veltri API! 🚀'})
 
-# Signup
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.json
@@ -63,7 +53,6 @@ def signup():
     
     return jsonify({'message': f'Welcome to Veltri, {username}!'}), 201
 
-# Login
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -76,7 +65,6 @@ def login():
     
     return jsonify({'message': f'Welcome back, {username}!'}), 200
 
-# Send message
 @app.route('/send-message', methods=['POST'])
 def send_message():
     data = request.json
@@ -92,7 +80,6 @@ def send_message():
     
     return jsonify({'message': 'Message sent!', 'id': new_message.id}), 201
 
-# Get all messages
 @app.route('/get-messages', methods=['GET'])
 def get_messages():
     messages = Message.query.order_by(Message.timestamp.asc()).all()
