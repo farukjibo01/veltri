@@ -90,9 +90,10 @@
         <h1>💬 Veltri</h1>
         <div id="messages"></div>
         <div class="input-area">
-            <input id="messageInput" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
-        </div>
+    <input id="messageInput" placeholder="Type a message...">
+    <button id="snapToggle" onclick="toggleSnap()" style="background: #444; padding: 12px 16px;">📸 Off</button>
+    <button onclick="sendMessage()">Send</button>
+</div>
     </div>
 // Check if user is logged in
 const username = localStorage.getItem('username');
