@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Veltri Chat</title>
+    <title>Veltri</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * {
@@ -19,152 +19,154 @@
             align-items: center;
             height: 100vh;
         }
-        .chat-box {
+        .app-container {
             width: 100%;
             max-width: 420px;
             height: 100vh;
             background: #1a1a1e;
-            padding: 20px;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
             display: flex;
             flex-direction: column;
-        }
-        h1 {
-            color: #2b6ef0;
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 5px;
+            position: relative;
+            overflow: hidden;
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            padding: 15px 20px;
+            background: #121214;
+            border-bottom: 1px solid #2c2c30;
         }
-        .logout-btn {
-            background: #ff4444;
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: none;
-            color: white;
-            font-size: 12px;
-            cursor: pointer;
+        .header h1 {
+            color: #2b6ef0;
+            font-size: 22px;
         }
-        .logout-btn:hover {
-            background: #cc0000;
-        }
-        #stories-bar {
+        .header-actions {
             display: flex;
             gap: 12px;
-            overflow-x: auto;
-            padding: 10px 5px;
-            margin-bottom: 10px;
-            background: #121214;
-            border-radius: 12px;
-            border: 1px solid #2c2c30;
-            scrollbar-width: none;
+            align-items: center;
         }
-        #stories-bar::-webkit-scrollbar {
-            display: none;
-        }
-        .story-item {
-            min-width: 65px;
-            text-align: center;
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #e4e4e7;
+            font-size: 22px;
             cursor: pointer;
         }
-        .story-avatar {
+        .icon-btn:hover {
+            color: #2b6ef0;
+        }
+        .page {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .page.active {
+            display: flex;
+        }
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            background: #121214;
+            border-top: 1px solid #2c2c30;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #6b6b70;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 30px;
+        }
+        .nav-btn.active {
+            color: #2b6ef0;
+            background: #1a2a4a;
+        }
+        .nav-btn:hover {
+            color: #e4e4e7;
+        }
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid #2c2c30;
+        }
+        .chat-item:hover {
+            background: #2a2a2e;
+        }
+        .chat-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
+            background: #2b6ef0;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto;
-            font-size: 20px;
-            font-weight: bold;
             color: white;
-            border: 2px solid #ff6b6b;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 12px;
         }
-        .story-avatar.my-story {
-            background: #2b6ef0;
-            border: 2px solid #2b6ef0;
-        }
-        .story-avatar.friend {
-            background: #ff6b6b;
-        }
-        .story-name {
-            color: #6b6b70;
-            font-size: 10px;
-            margin-top: 4px;
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 60px;
-        }
-        #messages {
-            background: #121214;
+        .chat-info {
             flex: 1;
-            border-radius: 12px;
+        }
+        .chat-name {
+            color: #e4e4e7;
+            font-weight: bold;
+        }
+        .chat-preview {
+            color: #6b6b70;
+            font-size: 13px;
+        }
+        .chat-time {
+            color: #6b6b70;
+            font-size: 11px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: #2b6ef0;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0 10px;
+        }
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: #121214;
+            border-bottom: 1px solid #2c2c30;
+        }
+        .chat-header .chat-name {
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        #messages-container {
+            flex: 1;
             padding: 15px;
             overflow-y: auto;
-            margin-bottom: 15px;
-            color: #e4e4e7;
-            border: 1px solid #2c2c30;
             display: flex;
             flex-direction: column;
         }
-        .input-area {
-            display: flex;
-            gap: 8px;
-        }
-        #messageInput {
-            flex: 1;
-            padding: 12px;
-            border-radius: 30px;
-            border: none;
-            background: #2a2a2e;
-            color: white;
-            font-size: 15px;
-            outline: none;
-        }
-        button {
-            background: #2b6ef0;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-size: 14px;
-            cursor: pointer;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-        button:hover {
-            background: #1a5adf;
-        }
-        #snapToggle {
-            background: #444;
-            padding: 12px 14px;
-            border-radius: 30px;
-            border: none;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        #snapToggle.on {
-            background: #ff6b6b;
-        }
         .message-bubble {
-            background: #2b6ef0;
             padding: 8px 14px;
             border-radius: 18px;
             margin-bottom: 6px;
             max-width: 80%;
+            word-wrap: break-word;
+        }
+        .message-bubble.sent {
+            background: #2b6ef0;
             align-self: flex-end;
             color: white;
-            word-wrap: break-word;
         }
         .message-bubble.received {
             background: #2a2a2e;
@@ -176,207 +178,761 @@
             background: #2a1a1a;
             color: #ff6b6b;
         }
-        .message-bubble img {
-            max-width: 100%;
+        .message-bubble img, .message-bubble video {
+            max-width: 200px;
             border-radius: 12px;
-            margin-top: 5px;
         }
-        .camera-btn {
+        .input-area {
+            display: flex;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #121214;
+            border-top: 1px solid #2c2c30;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 12px;
+            border-radius: 30px;
+            border: none;
+            background: #2a2a2e;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+        .send-btn {
+            background: #2b6ef0;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .send-btn:hover {
+            background: #1a5adf;
+        }
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+        .story-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            border: 3px solid #ff6b6b;
+            background: #2b6ef0;
+        }
+        .story-avatar.my-story {
+            border-color: #2b6ef0;
+        }
+        .story-name {
+            color: #6b6b70;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+        .stories-scroll {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 10px;
+        }
+        .stories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .friend-request-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #2c2c30;
+        }
+        .friend-request-item .name {
+            color: #e4e4e7;
+            font-weight: bold;
+        }
+        .friend-request-item .actions button {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+        .accept-btn {
             background: #25d366;
+            color: white;
         }
-        .camera-btn:hover {
+        .reject-btn {
+            background: #ff4444;
+            color: white;
+        }
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #2b6ef0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+        }
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-name {
+            color: #e4e4e7;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        .profile-bio {
+            color: #6b6b70;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .profile-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #2c2c30;
+            background: #1a1a1e;
+            color: white;
+            margin-bottom: 10px;
+            outline: none;
+        }
+        .profile-input:focus {
+            border-color: #2b6ef0;
+        }
+        .save-btn {
+            background: #2b6ef0;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .save-btn:hover {
+            background: #1a5adf;
+        }
+        .story-viewer-item {
+            display: inline-block;
+            margin-right: 8px;
+            background: #2a2a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: #e4e4e7;
+            font-size: 12px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .voice-btn {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .voice-btn:hover {
             background: #1aaa55;
+        }
+        .voice-btn.recording {
+            background: #ff4444;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <div class="chat-box">
-        <div class="header">
-            <h1>💬 Veltri</h1>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
 
-        <div id="stories-bar"></div>
-        <div id="messages"></div>
+<div class="app-container" id="app">
 
-        <div class="input-area">
-            <input id="messageInput" placeholder="Type a message...">
-            <button id="snapToggle" onclick="toggleSnap()">📸 Off</button>
-            <button onclick="sendMessage()">Send</button>
-            <button onclick="openCamera()" class="camera-btn">📷</button>
+    <!-- ========== HEADER ========== -->
+    <div class="header">
+        <h1>💬 Veltri</h1>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="showPage('inbox')">🏠</button>
+            <button class="icon-btn" onclick="showPage('friends')">👥</button>
+            <button class="icon-btn" onclick="showPage('profile')">👤</button>
         </div>
     </div>
 
-    <script>
-        const username = localStorage.getItem('username');
-        if (!username) {
-            window.location.href = '/login-page';
+    <!-- ========== INBOX PAGE ========== -->
+    <div class="page active" id="inbox-page">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <input id="searchInput" placeholder="Search users..." style="flex:1; padding:10px; border-radius:30px; border:none; background:#2a2a2e; color:white; outline:none;">
+            <button onclick="searchUsers()" style="background:#2b6ef0; color:white; border:none; padding:10px 18px; border-radius:30px; cursor:pointer;">🔍</button>
+        </div>
+        <div id="searchResults" style="margin-bottom:10px;"></div>
+        <h3 style="color:#e4e4e7; margin:10px 0;">📨 Friend Requests</h3>
+        <div id="friendRequestsContainer"></div>
+        <h3 style="color:#e4e4e7; margin:10px 0;">💬 Chats</h3>
+        <div id="inboxContainer"></div>
+    </div>
+
+    <!-- ========== CHAT PAGE ========== -->
+    <div class="page" id="chat-page">
+        <div class="chat-header">
+            <button class="back-btn" onclick="showPage('inbox')">←</button>
+            <span class="chat-name" id="chatPartnerName">User</span>
+        </div>
+        <div id="messages-container"></div>
+        <div class="input-area">
+            <button class="icon-btn" onclick="openCamera('image')">📷</button>
+            <button class="icon-btn" onclick="openCamera('video')">🎥</button>
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">🎤</button>
+            <input id="messageInput" placeholder="Type...">
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- ========== FRIENDS PAGE ========== -->
+    <div class="page" id="friends-page">
+        <h3 style="color:#e4e4e7; margin:10px 0;">👥 Your Friends</h3>
+        <div id="friendsContainer"></div>
+    </div>
+
+    <!-- ========== PROFILE PAGE ========== -->
+    <div class="page" id="profile-page">
+        <div class="profile-section">
+            <div class="profile-pic" id="profilePic" onclick="uploadProfilePic()">
+                <span id="profilePicText">👤</span>
+            </div>
+            <div class="profile-name" id="profileUsername">User</div>
+            <input class="profile-input" id="profileBio" placeholder="Bio...">
+            <input class="profile-input" id="profilePassword" placeholder="New Password..." type="password">
+            <button class="save-btn" onclick="updateProfile()">Save Profile</button>
+        </div>
+    </div>
+
+    <!-- ========== STORY VIEWER MODAL ========== -->
+    <div id="storyViewer" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999;">
+        <button onclick="closeStoryViewer()" style="position:absolute; top:20px; right:20px; background:red; color:white; border:none; padding:10px 20px; border-radius:30px;">✕</button>
+        <div id="storyContent" style="max-width:90%; max-height:70vh;"></div>
+        <div id="storyViews" style="color:white; margin-top:20px;"></div>
+    </div>
+
+</div>
+
+<script>
+    // ============ GLOBALS ============
+    const username = localStorage.getItem('username');
+    let currentChatPartner = '';
+    let snapMode = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let messageInterval = null;
+    let storyInterval = null;
+
+    if (!username) {
+        window.location.href = '/login-page';
+    }
+
+    // ============ PAGE NAVIGATION ============
+    function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(page + '-page').classList.add('active');
+        if (page === 'inbox') {
+            loadInbox();
+            loadFriendRequests();
+            loadStories();
+            if (messageInterval) clearInterval(messageInterval);
+            if (storyInterval) clearInterval(storyInterval);
         }
+        if (page === 'friends') {
+            loadFriends();
+        }
+        if (page === 'chat') {
+            loadMessages();
+            if (messageInterval) clearInterval(messageInterval);
+            messageInterval = setInterval(loadMessages, 3000);
+        }
+    }
 
-        let snapMode = false;
+    // ============ INBOX ============
+    async function loadInbox() {
+        const res = await fetch('/get-friends/' + username);
+        const friends = await res.json();
+        const container = document.getElementById('inboxContainer');
+        container.innerHTML = '';
+        friends.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.innerHTML = `
+                <div class="chat-avatar">${f.username[0].toUpperCase()}</div>
+                <div class="chat-info">
+                    <div class="chat-name">${f.username}</div>
+                    <div class="chat-preview">Tap to chat</div>
+                </div>
+            `;
+            div.onclick = () => openChat(f.username);
+            container.appendChild(div);
+        });
+    }
 
-        function toggleSnap() {
-            snapMode = !snapMode;
-            const btn = document.getElementById('snapToggle');
-            if (snapMode) {
-                btn.textContent = '📸 On';
-                btn.classList.add('on');
+    // ============ SEARCH USERS ============
+    async function searchUsers() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) return;
+        const res = await fetch('/search-users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+        });
+        const users = await res.json();
+        const container = document.getElementById('searchResults');
+        container.innerHTML = '';
+        users.forEach(u => {
+            if (u.username === username) return;
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.innerHTML = `
+                <div class="chat-avatar">${u.username[0].toUpperCase()}</div>
+                <div class="chat-info">
+                    <div class="chat-name">${u.username}</div>
+                </div>
+                <button onclick="sendFriendRequest('${u.username}')" style="background:#2b6ef0; color:white; border:none; padding:6px 14px; border-radius:20px; cursor:pointer;">Add</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // ============ FRIEND REQUESTS ============
+    async function sendFriendRequest(receiver) {
+        await fetch('/send-friend-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender: username, receiver })
+        });
+        alert('Friend request sent!');
+    }
+
+    async function loadFriendRequests() {
+        const res = await fetch('/get-friend-requests/' + username);
+        const requests = await res.json();
+        const container = document.getElementById('friendRequestsContainer');
+        container.innerHTML = '';
+        requests.forEach(r => {
+            const div = document.createElement('div');
+            div.className = 'friend-request-item';
+            div.innerHTML = `
+                <span class="name">${r.sender}</span>
+                <div class="actions">
+                    <button class="accept-btn" onclick="acceptFriendRequest('${r.sender}')">Accept</button>
+                    <button class="reject-btn" onclick="rejectFriendRequest('${r.sender}')">Reject</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    async function acceptFriendRequest(sender) {
+        await fetch('/accept-friend-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender, receiver: username })
+        });
+        loadFriendRequests();
+        loadInbox();
+    }
+
+    async function rejectFriendRequest(sender) {
+        await fetch('/reject-friend-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender, receiver: username })
+        });
+        loadFriendRequests();
+    }
+
+    // ============ FRIENDS LIST ============
+    async function loadFriends() {
+        const res = await fetch('/get-friends/' + username);
+        const friends = await res.json();
+        const container = document.getElementById('friendsContainer');
+        container.innerHTML = '';
+        friends.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'chat-item';
+            div.innerHTML = `
+                <div class="chat-avatar">${f.username[0].toUpperCase()}</div>
+                <div class="chat-info">
+                    <div class="chat-name">${f.username}</div>
+                </div>
+                <button onclick="openChat('${f.username}')" style="background:#2b6ef0; color:white; border:none; padding:6px 14px; border-radius:20px; cursor:pointer;">Chat</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // ============ OPEN CHAT ============
+    function openChat(partner) {
+        currentChatPartner = partner;
+        document.getElementById('chatPartnerName').textContent = partner;
+        showPage('chat');
+    }
+
+    // ============ SEND MESSAGE ============
+    async function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        await fetch('/send-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sender: username,
+                receiver: currentChatPartner,
+                content: text,
+                snap: false,
+                is_image: false,
+                is_video: false,
+                is_voice: false
+            })
+        });
+        input.value = '';
+        loadMessages();
+    }
+
+    // ============ LOAD MESSAGES ============
+    async function loadMessages() {
+        if (!currentChatPartner) return;
+        const res = await fetch('/get-messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user1: username, user2: currentChatPartner })
+        });
+        const messages = await res.json();
+        const container = document.getElementById('messages-container');
+        container.innerHTML = '';
+        messages.forEach(m => {
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble ' + (m.sender === username ? 'sent' : 'received');
+            if (m.snap) bubble.classList.add('snap');
+            if (m.is_image) {
+                bubble.innerHTML = `<img src="${m.content}" alt="Image">`;
+            } else if (m.is_video) {
+                bubble.innerHTML = `<video src="${m.content}" controls style="max-width:200px; border-radius:12px;"></video>`;
+            } else if (m.is_voice) {
+                bubble.innerHTML = `<audio controls src="${m.content}" style="max-width:200px;"></audio>`;
             } else {
-                btn.textContent = '📸 Off';
-                btn.classList.remove('on');
+                bubble.textContent = m.content;
             }
-        }
+            container.appendChild(bubble);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
 
-        function logout() {
-            localStorage.removeItem('username');
-            window.location.href = '/login-page';
-        }
-
-        function openCamera() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = async (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const imageData = e.target.result;
-                    try {
-                        await fetch('/upload-image', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                username: username,
-                                image: imageData,
-                                snap: snapMode
-                            })
-                        });
-                        loadMessages();
-                    } catch (error) {
-                        console.error('Error uploading image:', error);
-                    }
-                };
-                reader.readAsDataURL(file);
-            };
-            input.click();
-        }
-
-        async function postStory() {
-            const storyText = prompt("What's on your mind? (24h story)");
-            if (!storyText) return;
-
-            try {
-                await fetch('/post-story', {
+    // ============ CAMERA (Image/Video) ============
+    function openCamera(type) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = type === 'image' ? 'image/*' : 'video/*';
+        input.capture = type === 'image' ? 'environment' : 'environment';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const data = ev.target.result;
+                const res = await fetch('/upload-media', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: username, content: storyText })
+                    body: JSON.stringify({
+                        username,
+                        media: data,
+                        type: type,
+                        snap: false
+                    })
                 });
-                loadStories();
-            } catch (error) {
-                console.error('Error posting story:', error);
-            }
-        }
-
-        async function loadStories() {
-            try {
-                const response = await fetch('/get-stories');
-                const stories = await response.json();
-                const storiesBar = document.getElementById('stories-bar');
-                storiesBar.innerHTML = '';
-
-                const myStoryDiv = document.createElement('div');
-                myStoryDiv.className = 'story-item';
-                myStoryDiv.innerHTML = `
-                    <div class="story-avatar my-story">+</div>
-                    <span class="story-name">My Story</span>
-                `;
-                myStoryDiv.onclick = postStory;
-                storiesBar.appendChild(myStoryDiv);
-
-                stories.forEach(story => {
-                    if (story.username !== username) {
-                        const storyDiv = document.createElement('div');
-                        storyDiv.className = 'story-item';
-                        storyDiv.innerHTML = `
-                            <div class="story-avatar friend">${story.username[0].toUpperCase()}</div>
-                            <span class="story-name">${story.username}</span>
-                        `;
-                        storyDiv.onclick = () => {
-                            alert(`📖 ${story.username}'s Story:\n\n"${story.content}"`);
-                        };
-                        storiesBar.appendChild(storyDiv);
-                    }
-                });
-            } catch (error) {
-                console.error('Error loading stories:', error);
-            }
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const messagesDiv = document.getElementById('messages');
-            const text = input.value.trim();
-            
-            if (text === '') return;
-
-            const myMsg = document.createElement('div');
-            myMsg.className = 'message-bubble';
-            if (snapMode) {
-                myMsg.classList.add('snap');
-                myMsg.textContent = text + ' 🔥';
-            } else {
-                myMsg.textContent = text;
-            }
-            messagesDiv.appendChild(myMsg);
-            input.value = '';
-
-            try {
+                const result = await res.json();
                 await fetch('/send-message', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, content: text, snap: snapMode })
+                    body: JSON.stringify({
+                        sender: username,
+                        receiver: currentChatPartner,
+                        content: result.url,
+                        snap: false,
+                        is_image: type === 'image',
+                        is_video: type === 'video',
+                        is_voice: false
+                    })
                 });
-            } catch (error) {
-                console.error('Error sending message:', error);
-            }
+                loadMessages();
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
 
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    // ============ VOICE NOTES ============
+    function toggleVoiceRecording() {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
         }
+    }
 
-        async function loadMessages() {
-            try {
-                const response = await fetch('/get-messages');
-                const messages = await response.json();
-                const messagesDiv = document.getElementById('messages');
-                messagesDiv.innerHTML = '';
-                messages.forEach(msg => {
-                    const bubble = document.createElement('div');
-                    bubble.className = 'message-bubble';
-                    if (msg.username !== username) {
-                        bubble.classList.add('received');
-                    }
-                    if (msg.snap) {
-                        bubble.classList.add('snap');
-                    }
-                    if (msg.is_image) {
-                        bubble.innerHTML = `<img src="${msg.content}" alt="Image">`;
-                    } else {
-                        bubble.textContent = msg.content + (msg.snap ? ' 🔥' : '');
-                    }
-                    messagesDiv.appendChild(bubble);
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const data = e.target.result;
+                    const res = await fetch('/upload-media', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username,
+                            media: data,
+                            type: 'audio',
+                            snap: false
+                        })
+                    });
+                    const result = await res.json();
+                    await fetch('/send-message', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sender: username,
+                            receiver: currentChatPartner,
+                            content: result.url,
+                            snap: false,
+                            is_image: false,
+                            is_video: false,
+                            is_voice: true
+                        })
+                    });
+                    loadMessages();
+                };
+                reader.readAsDataURL(audioBlob);
+            };
+            mediaRecorder.start();
+            isRecording = true;
+            document.getElementById('voiceBtn').classList.add('recording');
+            document.getElementById('voiceBtn').textContent = '⏹';
+        } catch (err) {
+            alert('Please allow microphone access to record voice notes.');
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && isRecording) {
+            mediaRecorder.stop();
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+            document.getElementById('voiceBtn').textContent = '🎤';
+        }
+    }
+
+    // ============ PROFILE ============
+    async function loadProfile() {
+        const res = await fetch('/get-user/' + username);
+        const user = await res.json();
+        document.getElementById('profileUsername').textContent = user.username;
+        document.getElementById('profileBio').value = user.bio || '';
+        if (user.profile_pic) {
+            document.getElementById('profilePic').innerHTML = `<img src="${user.profile_pic}">`;
+        }
+    }
+
+    async function updateProfile() {
+        const bio = document.getElementById('profileBio').value;
+        const password = document.getElementById('profilePassword').value;
+        await fetch('/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, bio, password })
+        });
+        alert('Profile updated!');
+        loadProfile();
+    }
+
+    function uploadProfilePic() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const data = ev.target.result;
+                const res = await fetch('/upload-media', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, media: data, type: 'image', snap: false })
                 });
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            } catch (error) {
-                console.error('Error loading messages:', error);
-            }
-        }
+                const result = await res.json();
+                await fetch('/update-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, profile_pic: result.url })
+                });
+                loadProfile();
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
 
-        loadMessages();
+    // ============ STORIES ============
+    async function loadStories() {
+        try {
+            const res = await fetch('/get-stories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ viewer: username })
+            });
+            const stories = await res.json();
+            const container = document.getElementById('inbox-page');
+            let storiesHtml = `<div class="stories-scroll">`;
+            
+            // My Story
+            storiesHtml += `
+                <div class="story-item" onclick="postStory()">
+                    <div class="story-avatar my-story">+</div>
+                    <span class="story-name">My Story</span>
+                </div>
+            `;
+            
+            // Friends' Stories
+            stories.forEach(s => {
+                if (s.username !== username) {
+                    storiesHtml += `
+                        <div class="story-item" onclick="viewStory('${s.id}', '${s.username}', '${s.content}', '${s.is_image}', '${s.is_video}')">
+                            <div class="story-avatar" style="background:#ff6b6b;">${s.username[0].toUpperCase()}</div>
+                            <span class="story-name">${s.username}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            storiesHtml += `</div>`;
+            
+            // Insert stories at the top of inbox
+            const existingStories = document.getElementById('storiesSection');
+            if (existingStories) existingStories.remove();
+            const storiesSection = document.createElement('div');
+            storiesSection.id = 'storiesSection';
+            storiesSection.innerHTML = storiesHtml;
+            container.prepend(storiesSection);
+            
+        } catch (error) {
+            console.error('Error loading stories:', error);
+        }
+    }
+
+    async function postStory() {
+        const storyText = prompt("What's on your mind? (24h story)");
+        if (!storyText) return;
+        await fetch('/post-story', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: username,
+                content: storyText,
+                is_image: false,
+                is_video: false
+            })
+        });
         loadStories();
-        setInterval(loadMessages, 3000);
-        setInterval(loadStories, 10000);
-    </script>
+    }
+
+    async function viewStory(storyId, storyUsername, content, isImage, isVideo) {
+        // Record view
+        await fetch('/view-story', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ story_id: storyId, viewer: username })
+        });
+        
+        // Show story viewer
+        const viewer = document.getElementById('storyViewer');
+        viewer.classList.remove('hidden');
+        
+        const contentDiv = document.getElementById('storyContent');
+        if (isImage === 'true') {
+            contentDiv.innerHTML = `<img src="${content}" style="max-width:100%; max-height:70vh; border-radius:12px;">`;
+        } else if (isVideo === 'true') {
+            contentDiv.innerHTML = `<video src="${content}" controls style="max-width:100%; max-height:70vh; border-radius:12px;"></video>`;
+        } else {
+            contentDiv.innerHTML = `<div style="background:#1a1a1e; padding:40px; border-radius:20px; color:white; font-size:24px; text-align:center;">${content}</div>`;
+        }
+        
+        // Load views
+        const res = await fetch('/get-stories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ viewer: username })
+        });
+        const stories = await res.json();
+        const story = stories.find(s => s.id == storyId);
+        if (story) {
+            const viewsDiv = document.getElementById('storyViews');
+            viewsDiv.innerHTML = `<strong style="color:#e4e4e7;">👁️ Seen by:</strong> `;
+            if (story.views && story.views.length > 0) {
+                story.views.forEach(v => {
+                    viewsDiv.innerHTML += `<span class="story-viewer-item">${v}</span>`;
+                });
+            } else {
+                viewsDiv.innerHTML += `<span style="color:#6b6b70;">No views yet</span>`;
+            }
+        }
+    }
+
+    function closeStoryViewer() {
+        document.getElementById('storyViewer').classList.add('hidden');
+        loadStories();
+    }
+
+    // ============ INIT ============
+    loadProfile();
+    loadInbox();
+    loadFriendRequests();
+    loadStories();
+    if (storyInterval) clearInterval(storyInterval);
+    storyInterval = setInterval(loadStories, 10000);
+
+</script>
 </body>
 </html>
