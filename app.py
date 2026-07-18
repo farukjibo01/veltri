@@ -12,6 +12,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///veltri.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# === DATABASE TABLES ===
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -24,6 +26,13 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     snap = db.Column(db.Boolean, default=False)
+
+class Story(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(20), default='text')
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
 with app.app_context():
     db.create_all()
@@ -110,6 +119,38 @@ def get_messages():
             'content': m.content,
             'timestamp': m.timestamp.strftime('%H:%M'),
             'snap': m.snap
+        })
+    return jsonify(result)
+
+# === STORY ROUTES ===
+
+@app.route('/post-story', methods=['POST'])
+def post_story():
+    data = request.json
+    username = data.get('username')
+    content = data.get('content')
+    
+    if not username or not content:
+        return jsonify({'error': 'Missing data'}), 400
+    
+    new_story = Story(username=username, content=content)
+    db.session.add(new_story)
+    db.session.commit()
+    
+    return jsonify({'message': 'Story posted!'}), 201
+
+@app.route('/get-stories', methods=['GET'])
+def get_stories():
+    twenty_four_hours_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=24)
+    stories = Story.query.filter(Story.created_at >= twenty_four_hours_ago).order_by(Story.created_at.desc()).all()
+    
+    result = []
+    for s in stories:
+        result.append({
+            'username': s.username,
+            'content': s.content,
+            'type': s.type,
+            'time': s.created_at.strftime('%H:%M')
         })
     return jsonify(result)
 
