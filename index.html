@@ -169,6 +169,17 @@
             background: #2a1a1a;
             color: #ff6b6b;
         }
+        .message-bubble img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 5px;
+        }
+        .camera-btn {
+            background: #25d366;
+        }
+        .camera-btn:hover {
+            background: #1aaa55;
+        }
     </style>
 </head>
 <body>
@@ -178,28 +189,23 @@
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
 
-        <!-- STORIES BAR -->
         <div id="stories-bar"></div>
-
-        <!-- MESSAGES -->
         <div id="messages"></div>
 
-        <!-- INPUT AREA -->
         <div class="input-area">
             <input id="messageInput" placeholder="Type a message...">
             <button id="snapToggle" onclick="toggleSnap()">📸 Off</button>
             <button onclick="sendMessage()">Send</button>
+            <button onclick="openCamera()" class="camera-btn">📷</button>
         </div>
     </div>
 
     <script>
-        // === CHECK LOGIN ===
         const username = localStorage.getItem('username');
         if (!username) {
             window.location.href = '/login-page';
         }
 
-        // === SNAP TOGGLE ===
         let snapMode = false;
 
         function toggleSnap() {
@@ -214,10 +220,41 @@
             }
         }
 
-        // === LOGOUT ===
         function logout() {
             localStorage.removeItem('username');
             window.location.href = '/login-page';
+        }
+
+        // === CAMERA / IMAGE UPLOAD ===
+        function openCamera() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const imageData = e.target.result;
+                    try {
+                        await fetch('/upload-image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                username: username,
+                                image: imageData,
+                                snap: snapMode
+                            })
+                        });
+                        loadMessages();
+                    } catch (error) {
+                        console.error('Error uploading image:', error);
+                    }
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
         }
 
         // === POST STORY ===
@@ -245,7 +282,6 @@
                 const storiesBar = document.getElementById('stories-bar');
                 storiesBar.innerHTML = '';
 
-                // My Story Button
                 const myStoryDiv = document.createElement('div');
                 myStoryDiv.className = 'story-item';
                 myStoryDiv.innerHTML = `
@@ -255,7 +291,6 @@
                 myStoryDiv.onclick = postStory;
                 storiesBar.appendChild(myStoryDiv);
 
-                // Friends' Stories
                 stories.forEach(story => {
                     if (story.username !== username) {
                         const storyDiv = document.createElement('div');
@@ -265,7 +300,7 @@
                             <span class="story-name">${story.username}</span>
                         `;
                         storyDiv.onclick = () => {
-                            alert(`📖 ${story.username}'s Story:\n\n"${story.content}"\n\n🕐 Posted at: ${story.time}`);
+                            alert(`📖 ${story.username}'s Story:\n\n"${story.content}"`);
                         };
                         storiesBar.appendChild(storyDiv);
                     }
@@ -304,15 +339,6 @@
                 console.error('Error sending message:', error);
             }
 
-            setTimeout(() => {
-                const reply = document.createElement('div');
-                reply.className = 'message-bubble received';
-                const replies = ['Hey! 👋', 'Cool!', 'Tell me more', 'Veltri is awesome!', '😄', 'I like that!', 'Nice one!', '🔥'];
-                reply.textContent = replies[Math.floor(Math.random() * replies.length)];
-                messagesDiv.appendChild(reply);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }, 1000);
-
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
@@ -331,9 +357,11 @@
                     }
                     if (msg.snap) {
                         bubble.classList.add('snap');
-                        bubble.textContent = msg.content + ' 🔥';
+                    }
+                    if (msg.is_image) {
+                        bubble.innerHTML = `<img src="${msg.content}" alt="Image">`;
                     } else {
-                        bubble.textContent = msg.content;
+                        bubble.textContent = msg.content + (msg.snap ? ' 🔥' : '');
                     }
                     messagesDiv.appendChild(bubble);
                 });
@@ -343,7 +371,6 @@
             }
         }
 
-        // === INIT ===
         loadMessages();
         loadStories();
         setInterval(loadMessages, 3000);
