@@ -83,39 +83,122 @@
             align-self: flex-start;
             color: #e4e4e7;
         }
+        .message-bubble.snap {
+            border: 2px solid #ff6b6b;
+            background: #2a1a1a;
+            color: #ff6b6b;
+        }
+        .logout-btn {
+            background: #ff4444;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: none;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #snapToggle {
+            background: #444;
+            padding: 12px 16px;
+            border-radius: 30px;
+            border: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #snapToggle.on {
+            background: #ff6b6b;
+        }
+        .snap-label {
+            font-size: 10px;
+            color: #ff6b6b;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="chat-box">
-        <h1>💬 Veltri</h1>
+        <div class="header">
+            <h1>💬 Veltri</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
         <div id="messages"></div>
         <div class="input-area">
-    <input id="messageInput" placeholder="Type a message...">
-    <button id="snapToggle" onclick="toggleSnap()" style="background: #444; padding: 12px 16px;">📸 Off</button>
-    <button onclick="sendMessage()">Send</button>
-</div>
+            <input id="messageInput" placeholder="Type a message...">
+            <button id="snapToggle" onclick="toggleSnap()">📸 Off</button>
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
-// Check if user is logged in
-const username = localStorage.getItem('username');
-if (!username) {
-    window.location.href = '/login-page';
-}
+
     <script>
-        function sendMessage() {
+        // Check if user is logged in
+        const username = localStorage.getItem('username');
+        if (!username) {
+            window.location.href = '/login-page';
+        }
+
+        // Snap toggle
+        let snapMode = false;
+
+        function toggleSnap() {
+            snapMode = !snapMode;
+            const btn = document.getElementById('snapToggle');
+            if (snapMode) {
+                btn.textContent = '📸 On';
+                btn.classList.add('on');
+            } else {
+                btn.textContent = '📸 Off';
+                btn.classList.remove('on');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('username');
+            window.location.href = '/login-page';
+        }
+
+        async function sendMessage() {
             const input = document.getElementById('messageInput');
             const messagesDiv = document.getElementById('messages');
             const text = input.value.trim();
             
             if (text === '') return;
 
-            // Your message (blue bubble)
+            // Add your message (blue bubble)
             const myMsg = document.createElement('div');
             myMsg.className = 'message-bubble';
-            myMsg.textContent = text;
+            if (snapMode) {
+                myMsg.classList.add('snap');
+            }
+            myMsg.textContent = text + (snapMode ? ' 🔥' : '');
             messagesDiv.appendChild(myMsg);
 
             // Clear input
             input.value = '';
+
+            // Send to Python backend
+            try {
+                await fetch('/send-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: username, 
+                        content: text,
+                        snap: snapMode 
+                    })
+                });
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
 
             // Auto-reply after 1 second (THE BOT!)
             setTimeout(() => {
@@ -130,6 +213,38 @@ if (!username) {
             // Scroll to bottom
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
+
+        // Load messages when page opens
+        async function loadMessages() {
+            try {
+                const response = await fetch('/get-messages');
+                const messages = await response.json();
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = '';
+                messages.forEach(msg => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'message-bubble';
+                    if (msg.username !== username) {
+                        bubble.classList.add('received');
+                    }
+                    if (msg.snap) {
+                        bubble.classList.add('snap');
+                        bubble.textContent = msg.content + ' 🔥';
+                    } else {
+                        bubble.textContent = msg.content;
+                    }
+                    messagesDiv.appendChild(bubble);
+                });
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        // Load messages on page load
+        loadMessages();
+        // Refresh messages every 3 seconds
+        setInterval(loadMessages, 3000);
     </script>
 </body>
 </html>
