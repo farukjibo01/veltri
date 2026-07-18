@@ -1,6 +1,8 @@
 flask
 flask-sqlalchemy
 flask-cors
-gunicorn
+flask-socketio
 cloudinary
 eventlet
+python-engineio
+python-socketio
