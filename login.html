@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Veltri - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        body {
+            background: #0b0b0e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background: #1a1a1e;
+            border-radius: 24px;
+            border: 1px solid #2c2c30;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        h1 {
+            color: #25d366;
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #6b6b70;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 30px;
+            border: none;
+            background: #2a2a2e;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 12px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input:focus {
+            border: 2px solid #25d366;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            border: none;
+            background: #25d366;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: #1aaa55;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            border: 2px solid #2c2c30;
+            background: transparent;
+            color: #e4e4e7;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover {
+            background: #2a2a2e;
+        }
+        .switch {
+            text-align: center;
+            color: #6b6b70;
+            font-size: 14px;
+            margin-top: 16px;
+        }
+        .switch a {
+            color: #25d366;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .switch a:hover {
+            text-decoration: underline;
+        }
+        #message {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+        #message.success {
+            color: #25d366;
+        }
+        #message.error {
+            color: #ff4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💬 Veltri</h1>
+        <p class="subtitle" id="formTitle">Sign up to start chatting</p>
+        
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <input type="text" id="name" placeholder="Display Name (optional)" style="display:none;">
+        
+        <button class="btn-primary" id="actionBtn">Sign Up</button>
+        <button class="btn-secondary" id="switchBtn">Already have an account? Log In</button>
+        
+        <div id="message"></div>
+    </div>
+
+    <script>
+        let isLogin = false;
+
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const nameInput = document.getElementById('name');
+        const actionBtn = document.getElementById('actionBtn');
+        const switchBtn = document.getElementById('switchBtn');
+        const formTitle = document.getElementById('formTitle');
+        const messageDiv = document.getElementById('message');
+
+        function showMessage(text, isError = false) {
+            messageDiv.textContent = text;
+            messageDiv.className = isError ? 'error' : 'success';
+        }
+
+        function clearMessage() {
+            messageDiv.textContent = '';
+            messageDiv.className = '';
+        }
+
+        function toggleForm() {
+            isLogin = !isLogin;
+            if (isLogin) {
+                formTitle.textContent = 'Log in to continue';
+                actionBtn.textContent = 'Log In';
+                switchBtn.textContent = "Don't have an account? Sign Up";
+                nameInput.style.display = 'none';
+            } else {
+                formTitle.textContent = 'Sign up to start chatting';
+                actionBtn.textContent = 'Sign Up';
+                switchBtn.textContent = "Already have an account? Log In";
+                nameInput.style.display = 'block';
+            }
+            clearMessage();
+        }
+
+        switchBtn.addEventListener('click', toggleForm);
+
+        async function handleAction() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            const name = nameInput.value.trim();
+
+            if (!username || !password) {
+                showMessage('Please fill in all required fields.', true);
+                return;
+            }
+
+            if (!isLogin && name.length < 2) {
+                showMessage('Please enter a display name.', true);
+                return;
+            }
+
+            const endpoint = isLogin ? '/login' : '/signup';
+            const url = window.location.origin + endpoint;
+            const body = isLogin ? { username, password } : { username, password, name };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(data.message);
+                    localStorage.setItem('username', username);
+                    setTimeout(() => {
+                        window.location.href = window.location.origin + '/chat';
+                    }, 1000);
+                } else {
+                    showMessage(data.error || 'Something went wrong.', true);
+                }
+            } catch (error) {
+                showMessage('Network error. Please try again.', true);
+                console.error('Error:', error);
+            }
+        }
+
+        actionBtn.addEventListener('click', handleAction);
+
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleAction();
+        });
+        usernameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') passwordInput.focus();
+        });
+    </script>
+</body>
+</html>
