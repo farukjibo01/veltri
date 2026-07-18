@@ -17,7 +17,7 @@
             height: 100vh;
         }
         .chat-box {
-            width: 400px;
+            width: 420px;
             background: #1a1a1e;
             border-radius: 20px;
             padding: 20px;
@@ -28,11 +28,78 @@
             color: #2b6ef0;
             text-align: center;
             font-size: 28px;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logout-btn {
+            background: #ff4444;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: none;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+        #stories-bar {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 5px;
+            margin-bottom: 10px;
+            background: #121214;
+            border-radius: 12px;
+            border: 1px solid #2c2c30;
+            scrollbar-width: none;
+        }
+        #stories-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .story-item {
+            min-width: 65px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .story-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            border: 2px solid #ff6b6b;
+        }
+        .story-avatar.my-story {
+            background: #2b6ef0;
+            border: 2px solid #2b6ef0;
+        }
+        .story-avatar.friend {
+            background: #ff6b6b;
+        }
+        .story-name {
+            color: #6b6b70;
+            font-size: 10px;
+            margin-top: 4px;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 60px;
         }
         #messages {
             background: #121214;
-            height: 300px;
+            height: 280px;
             border-radius: 12px;
             padding: 15px;
             overflow-y: auto;
@@ -44,7 +111,7 @@
         }
         .input-area {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         #messageInput {
             flex: 1;
@@ -60,23 +127,37 @@
             background: #2b6ef0;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 20px;
             border-radius: 30px;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             font-weight: bold;
+            white-space: nowrap;
         }
         button:hover {
             background: #1a5adf;
+        }
+        #snapToggle {
+            background: #444;
+            padding: 12px 14px;
+            border-radius: 30px;
+            border: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #snapToggle.on {
+            background: #ff6b6b;
         }
         .message-bubble {
             background: #2b6ef0;
             padding: 8px 14px;
             border-radius: 18px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             max-width: 80%;
             align-self: flex-end;
             color: white;
+            word-wrap: break-word;
         }
         .message-bubble.received {
             background: #2a2a2e;
@@ -88,41 +169,6 @@
             background: #2a1a1a;
             color: #ff6b6b;
         }
-        .logout-btn {
-            background: #ff4444;
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: none;
-            color: white;
-            font-size: 12px;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-        .logout-btn:hover {
-            background: #cc0000;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #snapToggle {
-            background: #444;
-            padding: 12px 16px;
-            border-radius: 30px;
-            border: none;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        #snapToggle.on {
-            background: #ff6b6b;
-        }
-        .snap-label {
-            font-size: 10px;
-            color: #ff6b6b;
-            margin-left: 5px;
-        }
     </style>
 </head>
 <body>
@@ -131,7 +177,14 @@
             <h1>💬 Veltri</h1>
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
+
+        <!-- STORIES BAR -->
+        <div id="stories-bar"></div>
+
+        <!-- MESSAGES -->
         <div id="messages"></div>
+
+        <!-- INPUT AREA -->
         <div class="input-area">
             <input id="messageInput" placeholder="Type a message...">
             <button id="snapToggle" onclick="toggleSnap()">📸 Off</button>
@@ -140,13 +193,13 @@
     </div>
 
     <script>
-        // Check if user is logged in
+        // === CHECK LOGIN ===
         const username = localStorage.getItem('username');
         if (!username) {
             window.location.href = '/login-page';
         }
 
-        // Snap toggle
+        // === SNAP TOGGLE ===
         let snapMode = false;
 
         function toggleSnap() {
@@ -161,11 +214,68 @@
             }
         }
 
+        // === LOGOUT ===
         function logout() {
             localStorage.removeItem('username');
             window.location.href = '/login-page';
         }
 
+        // === POST STORY ===
+        async function postStory() {
+            const storyText = prompt("What's on your mind? (24h story)");
+            if (!storyText) return;
+
+            try {
+                await fetch('/post-story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, content: storyText })
+                });
+                loadStories();
+            } catch (error) {
+                console.error('Error posting story:', error);
+            }
+        }
+
+        // === LOAD STORIES ===
+        async function loadStories() {
+            try {
+                const response = await fetch('/get-stories');
+                const stories = await response.json();
+                const storiesBar = document.getElementById('stories-bar');
+                storiesBar.innerHTML = '';
+
+                // My Story Button
+                const myStoryDiv = document.createElement('div');
+                myStoryDiv.className = 'story-item';
+                myStoryDiv.innerHTML = `
+                    <div class="story-avatar my-story">+</div>
+                    <span class="story-name">My Story</span>
+                `;
+                myStoryDiv.onclick = postStory;
+                storiesBar.appendChild(myStoryDiv);
+
+                // Friends' Stories
+                stories.forEach(story => {
+                    if (story.username !== username) {
+                        const storyDiv = document.createElement('div');
+                        storyDiv.className = 'story-item';
+                        storyDiv.innerHTML = `
+                            <div class="story-avatar friend">${story.username[0].toUpperCase()}</div>
+                            <span class="story-name">${story.username}</span>
+                        `;
+                        storyDiv.onclick = () => {
+                            alert(`📖 ${story.username}'s Story:\n\n"${story.content}"\n\n🕐 Posted at: ${story.time}`);
+                        };
+                        storiesBar.appendChild(storyDiv);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading stories:', error);
+            }
+        }
+
+        // === SEND MESSAGE ===
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const messagesDiv = document.getElementById('messages');
@@ -173,48 +283,40 @@
             
             if (text === '') return;
 
-            // Add your message (blue bubble)
             const myMsg = document.createElement('div');
             myMsg.className = 'message-bubble';
             if (snapMode) {
                 myMsg.classList.add('snap');
+                myMsg.textContent = text + ' 🔥';
+            } else {
+                myMsg.textContent = text;
             }
-            myMsg.textContent = text + (snapMode ? ' 🔥' : '');
             messagesDiv.appendChild(myMsg);
-
-            // Clear input
             input.value = '';
 
-            // Send to Python backend
             try {
                 await fetch('/send-message', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        username: username, 
-                        content: text,
-                        snap: snapMode 
-                    })
+                    body: JSON.stringify({ username, content: text, snap: snapMode })
                 });
             } catch (error) {
                 console.error('Error sending message:', error);
             }
 
-            // Auto-reply after 1 second (THE BOT!)
             setTimeout(() => {
                 const reply = document.createElement('div');
                 reply.className = 'message-bubble received';
-                const replies = ['Hey! 👋', 'Cool!', 'Tell me more', 'Veltri is awesome!', '😄', 'I like that!', 'Nice one!'];
+                const replies = ['Hey! 👋', 'Cool!', 'Tell me more', 'Veltri is awesome!', '😄', 'I like that!', 'Nice one!', '🔥'];
                 reply.textContent = replies[Math.floor(Math.random() * replies.length)];
                 messagesDiv.appendChild(reply);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }, 1000);
 
-            // Scroll to bottom
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Load messages when page opens
+        // === LOAD MESSAGES ===
         async function loadMessages() {
             try {
                 const response = await fetch('/get-messages');
@@ -241,10 +343,11 @@
             }
         }
 
-        // Load messages on page load
+        // === INIT ===
         loadMessages();
-        // Refresh messages every 3 seconds
+        loadStories();
         setInterval(loadMessages, 3000);
+        setInterval(loadStories, 10000);
     </script>
 </body>
 </html>
