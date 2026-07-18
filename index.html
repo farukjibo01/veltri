@@ -94,7 +94,11 @@
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
-
+// Check if user is logged in
+const username = localStorage.getItem('username');
+if (!username) {
+    window.location.href = '/login-page';
+}
     <script>
         function sendMessage() {
             const input = document.getElementById('messageInput');
